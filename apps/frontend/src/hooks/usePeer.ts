@@ -17,13 +17,13 @@ const usePeer = () => {
         isPeerSet.current = true;
 
         const myPeer = new Peer();
+
         setPeer(myPeer);
 
         myPeer.on('open', (id) => {
             console.log(`Your peer id is ${id}`);
             setMyId(id);
-            socket?.emit("join-room", { roomId, id });
-
+            socket?.emit("join-room", { roomId, userId: id });
         })
     }, [roomId, socket])
 
