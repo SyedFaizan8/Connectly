@@ -1,16 +1,17 @@
 "use client"
 
-import Player from '@/components/Player';
+import { useEffect, useState } from 'react';
+import { useParams } from 'next/navigation';
+
 import { useSocket } from '@/context/SocketProvider'
 import useMediaStream from '@/hooks/useMediaStream';
 import usePeer from '@/hooks/usePeer';
-
-import usePlayer, { Players } from '@/hooks/usePlayer';
-import Bottom from '@/components/Bottom';
-
-import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import useDeepCopy from '@/hooks/useDeepCopy';
+import usePlayer, { Players } from '@/hooks/usePlayer';
+
+import Player from '@/components/Player';
+import Bottom from '@/components/Bottom';
+import CopySection from '@/components/CopySection';
 
 const Room = () => {
     const socket = useSocket();
@@ -18,6 +19,7 @@ const Room = () => {
     const { stream } = useMediaStream();
     const { room: roomId } = useParams<{ room: string }>()
     const {
+        players,
         setPlayers,
         playerHighlighted,
         nonHighlightedPlayers,
@@ -85,6 +87,9 @@ const Room = () => {
         const handleUserLeave = (userId: string) => {
             console.log(`user with ${userId} leave the room`);
             users[userId]?.close();
+            const playersCopy = useDeepCopy(players);
+            delete playersCopy[userId];
+            setPlayers(playersCopy);
         }
 
         socket?.on("user-toggle-audio", handleToggleAudio);
@@ -95,7 +100,7 @@ const Room = () => {
             socket.off("user-toggle-video", handleToggleVideo);
             socket.off("user-leave", handleUserLeave);
         }
-    }, [setPlayers, socket])
+    }, [players, setPlayers, socket, users])
 
     useEffect(() => {
         if (!peer || !stream) return;
@@ -153,6 +158,7 @@ const Room = () => {
                     return <Player key={playerId} url={url} muted={muted} playing={playing} isActive={false} />
                 })}
             </div>
+            <CopySection roomId={roomId} />
             {playerHighlighted && (
                 <Bottom
                     muted={playerHighlighted.muted}

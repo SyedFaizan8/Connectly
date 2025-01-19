@@ -54,7 +54,7 @@ const usePlayer = (myId: string, roomId: string, peer: Peer | null) => {
         socket?.emit('user-toggle-video', myId, roomId)
     }
 
-    return { setPlayers, playerHighlighted, nonHighlightedPlayers, toggleAudio, toggleVideo, leaveRoom }
+    return { players, setPlayers, playerHighlighted, nonHighlightedPlayers, toggleAudio, toggleVideo, leaveRoom }
 }
 
 export default usePlayer;
