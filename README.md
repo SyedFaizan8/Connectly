@@ -1,6 +1,6 @@
 # Connectly (Peer-to-Peer Video Chat)
 
-Connectly is a peer-to-peer video calling and embedded messaging platform built using Next.js, Express.js (as a signaling server), Socket.IO, PeerJS, and Tailwind CSS. The project is written entirely in TypeScript and organized as a Turbo Repo with separate frontend and backend applications.
+Connectly is a peer-to-peer video calling platform built using Next.js, Express.js (as a signaling server), Socket.IO, PeerJS, and Tailwind CSS. The project is entirely written in TypeScript and organized as a Turbo Repo with separate frontend and backend applications.
 
 ## Project Overview
 
