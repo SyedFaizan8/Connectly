@@ -24,9 +24,17 @@ io.on("connection", (socket: Socket) => {
     console.log(`User connected: ${socket.id}`);
 
     socket.on("join-room", ({ roomId, userId }: { roomId: string, userId: string }) => {
-        console.log(`A new user with userId ${userId} joined room ${roomId}`);
-        socket.join(roomId);
-        socket.broadcast.to(roomId).emit("user-connected", userId);
+        const room = io.sockets.adapter.rooms.get(roomId);
+        const roomSize = room?.size || 0;
+
+        if (roomSize < 2) {
+            console.log(`A new user with userId ${userId} joined room ${roomId}`);
+            socket.join(roomId);
+            socket.broadcast.to(roomId).emit("user-connected", userId);
+        } else {
+            console.log(`Room ${roomId} is full. User ${userId} cannot join.`);
+            socket.emit("room-full", roomId);
+        }
     });
 
     socket.on("user-toggle-audio", (userId: string, roomId: string) => {
@@ -45,6 +53,12 @@ io.on("connection", (socket: Socket) => {
         console.log(`userId ${userId} left the roomid ${roomId}`);
         socket.join(roomId);
         socket.broadcast.to(roomId).emit("user-leave", userId);
+    })
+
+    socket.on("send-message", (userId: string, roomId: string, message: string) => {
+        console.log(`message ${message} from user ${userId} received in room`);
+        socket.join(roomId);
+        socket.broadcast.to(roomId).emit("receive-message", message);
     })
 
     socket.on("disconnect", () => {

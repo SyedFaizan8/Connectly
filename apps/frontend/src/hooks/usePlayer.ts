@@ -18,6 +18,8 @@ const usePlayer = (myId: string, roomId: string, peer: Peer | null) => {
     const router = useRouter();
     const socket = useSocket();
     const [players, setPlayers] = useState<Players>({});
+    const [message, setMessage] = useState<string>("");
+    const [data, setData] = useState<{ [key: string]: string }>({});
 
     const playersCopy = useDeepCopy(players);
 
@@ -29,7 +31,7 @@ const usePlayer = (myId: string, roomId: string, peer: Peer | null) => {
     const leaveRoom = () => {
         socket?.emit("user-leave", myId, roomId);
         peer?.disconnect();
-        router.push('/')
+        router.push('/');
     }
 
     const toggleAudio = () => {
@@ -54,7 +56,31 @@ const usePlayer = (myId: string, roomId: string, peer: Peer | null) => {
         socket?.emit('user-toggle-video', myId, roomId)
     }
 
-    return { players, setPlayers, playerHighlighted, nonHighlightedPlayers, toggleAudio, toggleVideo, leaveRoom }
+    const handleMessage = (e: any) => {
+        e.preventDefault();
+        if (message.length === 0) return;
+        setData((prev) => ({
+            ...prev,
+            ["You"]: message,
+        }))
+        socket?.emit("send-message", myId, roomId, message);
+        setMessage("");
+    }
+
+    return {
+        players,
+        setPlayers,
+        playerHighlighted,
+        nonHighlightedPlayers,
+        toggleAudio,
+        toggleVideo,
+        leaveRoom,
+        handleMessage,
+        message,
+        setMessage,
+        data,
+        setData
+    }
 }
 
 export default usePlayer;

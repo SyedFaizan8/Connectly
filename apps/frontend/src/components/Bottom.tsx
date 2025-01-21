@@ -7,14 +7,14 @@ const Bottom = ({ muted, playing, toggleAudio, toggleVideo, leaveRoom }:
     { muted: boolean, playing: boolean, toggleAudio: any, toggleVideo: any, leaveRoom: any }) => {
 
     return (
-        <div className="absolute flex justify-between bottom-5 left-0 right-0 mx-auto w-72">
+        <div className="absolute flex justify-center space-x-6 bottom-5 left-0 right-0 mx-auto w-full">
             {muted ?
-                <MicOff size={55} onClick={toggleAudio} className="p-4 rounded-full text-white cursor-pointer bg-red-950 hover:bg-red-600" />
-                : <Mic size={55} onClick={toggleAudio} className="p-4 rounded-full text-white cursor-pointer bg-red-950 hover:bg-red-600" />}
+                <MicOff size={55} onClick={toggleAudio} className="p-4 rounded-full text-white cursor-pointer bg-red-500 hover:bg-red-600" />
+                : <Mic size={55} onClick={toggleAudio} className="p-4 rounded-full text-white cursor-pointer bg-slate-500 hover:bg-red-600" />}
             {playing ?
-                <Video size={55} onClick={toggleVideo} className="p-4 rounded-full text-white cursor-pointer bg-red-950 hover:bg-red-600" />
+                <Video size={55} onClick={toggleVideo} className="p-4 rounded-full text-white cursor-pointer bg-slate-500 hover:bg-red-600" />
                 : <VideoOff size={55} onClick={toggleVideo} className="p-4 rounded-full text-white cursor-pointer bg-red-950 hover:bg-red-600" />}
-            <PhoneOff onClick={leaveRoom} size={50} className="p-4 rounded-full text-white cursor-pointer bg-red-950 hover:bg-red-600" />
+            <PhoneOff onClick={leaveRoom} size={55} className="p-4 rounded-full text-white cursor-pointer bg-slate-500 hover:bg-red-600" />
         </div>
     )
 }

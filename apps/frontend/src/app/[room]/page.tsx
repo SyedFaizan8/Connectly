@@ -12,6 +12,7 @@ import usePlayer, { Players } from '@/hooks/usePlayer';
 import Player from '@/components/Player';
 import Bottom from '@/components/Bottom';
 import CopySection from '@/components/CopySection';
+import useIsMobile from '@/hooks/useIsMobile';
 
 const Room = () => {
     const socket = useSocket();
@@ -25,10 +26,17 @@ const Room = () => {
         nonHighlightedPlayers,
         toggleAudio,
         toggleVideo,
-        leaveRoom
+        leaveRoom,
+        message,
+        handleMessage,
+        setMessage,
+        data,
+        setData
     } = usePlayer(myId, roomId, peer);
 
     const [users, setUsers] = useState<{ [key: string]: any }>({});
+    const isMobile = useIsMobile();
+
 
     useEffect(() => {
         if (!socket || !peer || !stream) return;
@@ -141,32 +149,86 @@ const Room = () => {
         }))
     }, [myId, stream])
 
+    useEffect(() => {
+        setData((prev) => ({
+            ...prev,
+            ["Away"]: "",
+            ["You"]: ""
+        }))
+    }, [])
+
+    useEffect(() => {
+        if (!socket) return;
+        const handleMessageData = (message: string) => {
+            console.log("message recieved ", message)
+            setData((prev) => ({
+                ...prev,
+                ["Away"]: message,
+            }))
+        }
+        socket?.on("receive-message", handleMessageData);
+        return () => {
+            socket?.off("receive-message", handleMessageData);
+        }
+    }, [])
+
+    useEffect(() => {
+        if (!socket) return;
+        const handleRoomFull = () => {
+            leaveRoom();
+        }
+
+        socket?.on("room-full", handleRoomFull);
+
+        return () => {
+            socket?.off("room-full", handleRoomFull);
+        }
+    }, [socket, leaveRoom])
+
+
     return (
         <>
-            <div className="absolute w-9/12 left-0 mx-auto top-5 bottom-12 h-4/5">
+            <div className="h-full w-full flex justify-center items-center">
+                <div className="absolute top-5 bottom-12 h-4/5">
+                    {playerHighlighted && (
+                        <Player
+                            url={playerHighlighted.url}
+                            muted={playerHighlighted.muted}
+                            playing={playerHighlighted.playing}
+                            isActive />
+                    )}
+                </div>
+                <div className="absolute flex flex-col overflow-y-auto  md:w-52 right-5 top-5">
+                    {Object.keys(nonHighlightedPlayers).map((playerId) => {
+                        const { url, muted, playing } = nonHighlightedPlayers[playerId];
+                        return <Player key={playerId} url={url} muted={muted} playing={playing} isActive={false} />
+                    })}
+                </div>
+                <CopySection roomId={roomId} />
                 {playerHighlighted && (
-                    <Player
-                        url={playerHighlighted.url}
+                    <Bottom
                         muted={playerHighlighted.muted}
                         playing={playerHighlighted.playing}
-                        isActive />
+                        toggleAudio={toggleAudio}
+                        toggleVideo={toggleVideo}
+                        leaveRoom={leaveRoom} />
                 )}
+                {!isMobile && <div className="z-0 w-2/12 h-auto absolute rounded right-5 bottom-5">
+                    {data &&
+                        <ul className="h-auto p-2 mb-4 rounded border border-white ">
+                            {Object.entries(data).map(([id, content]) => (
+                                <li key={id}>
+                                    <strong className={`${id === "You" ? "text-green-500" : "text-yellow-500"}`}>{id}:</strong> {content}
+                                </li>
+                            ))}
+                        </ul>
+                    }
+                    <form className="flex border-white border rounded z-10" onSubmit={handleMessage}>
+                        <input type="text" placeholder='Type your message here' className="inline px-1 bg-black text-white" value={message} onChange={(e) => setMessage(e.target.value)} />
+                        <button type='submit' className="z-0 inline border border-l-white w-full bg-red-700 text-white">Send</button>
+                    </form>
+                </div>}
             </div>
-            <div className="absolute flex flex-col overflow-y-auto w-52 h-1/4 right-5 top-5">
-                {Object.keys(nonHighlightedPlayers).map((playerId) => {
-                    const { url, muted, playing } = nonHighlightedPlayers[playerId];
-                    return <Player key={playerId} url={url} muted={muted} playing={playing} isActive={false} />
-                })}
-            </div>
-            <CopySection roomId={roomId} />
-            {playerHighlighted && (
-                <Bottom
-                    muted={playerHighlighted.muted}
-                    playing={playerHighlighted.playing}
-                    toggleAudio={toggleAudio}
-                    toggleVideo={toggleVideo}
-                    leaveRoom={leaveRoom} />
-            )}
         </>
     )
 }
