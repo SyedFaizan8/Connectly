@@ -18,11 +18,11 @@ Connectly allows users to initiate peer-to-peer video calls and exchange message
 
 ## Project Structure
 
-```http
+```bash
 turbo.json
 apps/
   ├── frontend/       # Next.js frontend code
-  └── backend/        # # Express.js backend (signaling server) code
+  └── backend/        # Express.js backend (signaling server) code
 ```
 
 ## How to Run
