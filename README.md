@@ -99,3 +99,7 @@ npm run dev
 ---
 
 Feel free to explore the code, learn from it, and reach out if you have any feedback or questions!
+
+## License
+
+[MIT License](LICENSE)
